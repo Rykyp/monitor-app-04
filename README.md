@@ -1,4 +1,3 @@
-	docker run --rm -it --pull always 4132853/monitor-app-04:1.0.0
 # Monitor de estabilidad de APP-04
 
 Programa de menú que analiza las descargas y las caídas semanales de una aplicación móvil.
