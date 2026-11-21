@@ -10,7 +10,7 @@ from typing import Final
 # Datos de la aplicación. Sustituid los del ejemplo APP-00 por los vuestros.
 # ---------------------------------------------------------------------------
 CODIGO: Final[str] = "APP-04"
-NOMBRE: Final[str] = "Agenda Escolar"
+NOMBRE: Final[str] = "Monitor de Estabilidad"
 # Una posición por semana, de la 1 a la 12. 0 descargas: app retirada.
 DESCARGAS: Final = [1_200, 1_350, 1_280, 1_500, 0, 1_720,
                     2_050, 1_810, 1_980, 2_310, 2_200, 2_150]
