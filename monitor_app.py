@@ -12,10 +12,10 @@ from typing import Final
 CODIGO: Final[str] = "APP-04"
 NOMBRE: Final[str] = "Monitor de Estabilidad"
 # Una posición por semana, de la 1 a la 12. 0 descargas: app retirada.
-DESCARGAS: Final = [1_200, 1_350, 1_280, 1_500, 0, 1_720,
-                    2_050, 1_810, 1_980, 2_310, 2_200, 2_150]
-CAIDAS: Final = [14, 12, 15, 9, 0, 22,
-                 31, 8, 6, 9, 5, 4]
+DESCARGAS: Final = [1_710, 1_720, 1_740, 1_640, 1_620, 1_610,
+                    1_580, 1_620, 1_740, 0, 1_790, 1_780]
+CAIDAS: Final = [19, 39, 14, 10, 6, 26,
+                 20, 26, 4, 0, 8, 29]
 
 # ---------------------------------------------------------------------------
 # Datos del programa. Solo hay que cambiar AUTORES.
