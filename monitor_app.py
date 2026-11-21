@@ -51,6 +51,13 @@ ESTADO_MANTENIMIENTO: Final[str] = "Mantenimiento"
 
 SEMANA_MINIMA: Final[int] = 1
 
+OBJETIVO_MAXIMO: Final[int] = 1_000_000
+CRECIMIENTO_MINIMO: Final[float] = 0.5
+CRECIMIENTO_MAXIMO: Final[float] = 50.0
+SEMANAS_PREVISION_MAXIMAS: Final[int] = 104
+POR_CIENTO: Final[int] = 100
+INCREMENTO_MINIMO_DESCARGAS: Final[int] = 1
+
 # ---------------------------------------------------------------------------
 # Excepciones propias de la pareja. Aquí va SemanaNoValida (opción 7).
 # ---------------------------------------------------------------------------
@@ -327,8 +334,49 @@ def opcion_5_racha() -> None:
 
 
 def opcion_6_prevision() -> None:
-    """[Docstring: qué hace esta opción.]"""
-    print(PENDIENTE)
+    """Calcula las semanas necesarias para alcanzar un objetivo de descargas."""
+    ultimas_descargas = 0
+    for semana, (descargas, caidas) in enumerate(
+            zip(DESCARGAS, CAIDAS), start=1):
+        if descargas == 0:
+            continue
+        ultimas_descargas = descargas
+
+    print(f"Descargas de la última semana activa: {ultimas_descargas}")
+
+    objetivo_minimo = ultimas_descargas + INCREMENTO_MINIMO_DESCARGAS
+    objetivo = pedir_entero(
+        "Objetivo semanal de descargas: ",
+        objetivo_minimo,
+        OBJETIVO_MAXIMO,
+    )
+    crecimiento = pedir_real(
+        "Crecimiento semanal en %: ",
+        CRECIMIENTO_MINIMO,
+        CRECIMIENTO_MAXIMO,
+    )
+
+    proporcion_crecimiento = crecimiento / POR_CIENTO
+    descargas_previstas = float(ultimas_descargas)
+    semanas = 0
+
+    while descargas_previstas < objetivo:
+        if semanas >= SEMANAS_PREVISION_MAXIMAS:
+            break
+        aumento = descargas_previstas * proporcion_crecimiento
+        descargas_previstas += aumento
+        semanas += 1
+
+    if descargas_previstas >= objetivo:
+        print(
+            f"Se alcanza en {semanas} semanas "
+            f"({descargas_previstas:.0f} descargas)"
+        )
+    else:
+        print(
+            f"No se alcanza el objetivo en "
+            f"{SEMANAS_PREVISION_MAXIMAS} semanas."
+        )
 
 
 def opcion_7_consulta() -> None:
