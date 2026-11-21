@@ -49,11 +49,13 @@ ESTADO_REVISAR: Final[str] = "Revisar"
 ESTADO_CRITICA: Final[str] = "Crítica"
 ESTADO_MANTENIMIENTO: Final[str] = "Mantenimiento"
 
+
 # ---------------------------------------------------------------------------
 # Excepciones propias de la pareja. Aquí va SemanaNoValida (opción 7).
 # ---------------------------------------------------------------------------
 class SemanaNoValida(Exception):
     """Error lanzado cuando el número de semana no es válido."""
+
 
 # ---------------------------------------------------------------------------
 # Funciones auxiliares. tasa_caidas viene hecha; el resto, con su docstring,
@@ -121,6 +123,7 @@ def pedir_real(mensaje: str, minimo: float, maximo: float) -> float:
             return valor
         print(f"El valor debe estar entre {minimo} y {maximo}.")
 
+
 def semana_valida(texto: str) -> int:
     """Convierte el texto en un número de semana de los datos.
 
@@ -142,8 +145,21 @@ def comprobar_datos() -> int:
 # Menú y opciones. La opción 1 viene hecha y la 2 tiene dos errores.
 # ---------------------------------------------------------------------------
 def mostrar_menu() -> None:
-    """[Docstring: qué hace esta función.]"""
-    print(PENDIENTE)
+    """Muestra la cabecera de la aplicación y las opciones del menú."""
+    linea = SEPARADOR_MENU * ANCHO
+    titulo = f"MONITOR DE {CODIGO} · {NOMBRE}"
+    print(linea)
+    print(titulo.center(ANCHO))
+    print(linea)
+    print("1. Listado semanal")
+    print("2. Resumen")
+    print("3. Estabilidad por semana")
+    print("4. Primera semana que alcanza un umbral")
+    print("5. Mejor racha sin problemas")
+    print("6. Previsión de crecimiento")
+    print("7. Consultar una semana")
+    print("8. Comprobar los datos")
+    print("9. Salir")
 
 
 def opcion_1_listado() -> None:
@@ -192,18 +208,80 @@ def opcion_2_resumen() -> None:
 
 
 def opcion_3_estabilidad() -> None:
-    """[Docstring: qué hace esta opción.]"""
-    print(PENDIENTE)
+    """Muestra el estado de cada semana y cuántas hay de cada tipo."""
+    estables = 0
+    aceptables = 0
+    revisar = 0
+    criticas = 0
+    mantenimiento = 0
+    for semana, (descargas, caidas) in enumerate(
+            zip(DESCARGAS, CAIDAS), start=1):
+        estado_semana = estado(descargas, caidas)
+        print(f"Semana {semana:>2}: {estado_semana}")
+        match estado_semana:
+            case "Estable":
+                estables += 1
+            case "Aceptable":
+                aceptables += 1
+            case "Revisar":
+                revisar += 1
+            case "Crítica":
+                criticas += 1
+            case "Mantenimiento":
+                mantenimiento += 1
+    print(f"Estables:      {estables}")
+    print(f"Aceptables:    {aceptables}")
+    print(f"Revisar:       {revisar}")
+    print(f"Críticas:      {criticas}")
+    print(f"Mantenimiento: {mantenimiento}")
 
 
 def opcion_4_umbral() -> None:
-    """[Docstring: qué hace esta opción.]"""
-    print(PENDIENTE)
+    """Busca la primera semana que alcanza o supera un umbral de caídas."""
+    umbral = pedir_real(
+        "Umbral en caídas por mil: ",
+        UMBRAL_MINIMO,
+        UMBRAL_MAXIMO,
+    )
+    for semana, (descargas, caidas) in enumerate(
+            zip(DESCARGAS, CAIDAS), start=1):
+        if descargas == 0:
+            continue
+        tasa = tasa_caidas(descargas, caidas)
+        if tasa >= umbral:
+            print(f"Primera semana: {semana} ({tasa:.1f} ‰)")
+            break
+    else:
+        print(f"Ninguna semana alcanza {umbral:.1f} ‰")
 
 
 def opcion_5_racha() -> None:
-    """[Docstring: qué hace esta opción.]"""
-    print(PENDIENTE)
+    """Busca la racha más larga de semanas seguidas estables o aceptables."""
+    racha_actual = 0
+    inicio_actual = 0
+    mejor_racha = 0
+    mejor_inicio = 0
+    for semana, (descargas, caidas) in enumerate(
+            zip(DESCARGAS, CAIDAS), start=1):
+        estado_semana = estado(descargas, caidas)
+        if estado_semana == ESTADO_MANTENIMIENTO:
+            continue
+        if estado_semana in (ESTADO_ESTABLE, ESTADO_ACEPTABLE):
+            if racha_actual == 0:
+                inicio_actual = semana
+            racha_actual += 1
+            if racha_actual > mejor_racha:
+                mejor_racha = racha_actual
+                mejor_inicio = inicio_actual
+        else:
+            racha_actual = 0
+    if mejor_racha == 0:
+        print("No hay ninguna racha sin problemas.")
+    else:
+        print(
+            f"Mejor racha: {mejor_racha} semanas, "
+            f"desde la semana {mejor_inicio}"
+        )
 
 
 def opcion_6_prevision() -> None:
@@ -222,12 +300,57 @@ def opcion_8_comprobar() -> None:
 
 
 def main() -> None:
-    """[Docstring: qué hace la función principal.]"""
-    # Provisional: sustituidlo por el bucle del menú (tarea 2).
-    mostrar_menu()
-    opcion_1_listado()
-    opcion_2_resumen()
-    print(PENDIENTE)
+    """Arranca el programa, comprueba los datos y ejecuta el menú."""
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(levelname)s: %(message)s",
+    )
+    errores = comprobar_datos()
+    if errores > 0:
+        sys.exit("Los datos tienen errores: corrígelos antes de continuar.")
+
+    print(f"Monitor de estabilidad {VERSION_PROGRAMA} · {AUTORES}")
+
+    try:
+        while True:
+            mostrar_menu()
+            entrada = input("Opción: ")
+            try:
+                opcion = int(entrada)
+            except ValueError:
+                print(f"«{entrada}» no es una opción.")
+                continue
+
+            match opcion:
+                case 1:
+                    opcion_1_listado()
+                case 2:
+                    opcion_2_resumen()
+                case 3:
+                    opcion_3_estabilidad()
+                case 4:
+                    opcion_4_umbral()
+                case 5:
+                    opcion_5_racha()
+                case 6:
+                    opcion_6_prevision()
+                case 7:
+                    opcion_7_consulta()
+                case 8:
+                    opcion_8_comprobar()
+                case _ if opcion == OPCION_SALIR:
+                    confirmar = input("¿Salir del programa? (s/n): ")
+                    if confirmar.strip().lower() == RESPUESTA_SI:
+                        break
+                case _:
+                    print(
+                        f"Elige una opción entre {OPCION_MINIMA} y "
+                        f"{OPCION_SALIR}."
+                    )
+    except KeyboardInterrupt:
+        print("\nPrograma interrumpido.")
+
+    print(f"Fin del monitor de {CODIGO}.")
 
 
 if __name__ == "__main__":
