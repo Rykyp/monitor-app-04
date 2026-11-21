@@ -1,5 +1,7 @@
-"""[Docstring del módulo: una sola línea que diga qué hace el programa.]"""
+"""Monitor de estabilidad semanal para una aplicación móvil."""
 
+import logging
+import sys
 from typing import Final
 
 # Añadid aquí las importaciones que necesitéis.
@@ -19,7 +21,7 @@ CAIDAS: Final = [14, 12, 15, 9, 0, 22,
 # Datos del programa. Solo hay que cambiar AUTORES.
 # ---------------------------------------------------------------------------
 VERSION_PROGRAMA: Final[str] = "1.0.0"
-AUTORES: Final[str] = "[usuario] · [usuario]"
+AUTORES: Final[str] = "ricardo.palomares.viseras · pablo.morales.viseras"
 PENDIENTE: Final[str] = "  (opción pendiente de implementar)"
 
 # ---------------------------------------------------------------------------
@@ -35,12 +37,23 @@ OPCION_SALIR: Final[int] = 9
 # ---------------------------------------------------------------------------
 # Constantes de la pareja. Todo valor fijo del programa va aquí, con nombre.
 # ---------------------------------------------------------------------------
+OPCION_MINIMA: Final[int] = 1
+UMBRAL_MINIMO: Final[float] = 0.0
+UMBRAL_MAXIMO: Final[float] = 1_000.0
+SEPARADOR_MENU: Final[str] = "="
+RESPUESTA_SI: Final[str] = "s"
 
+ESTADO_ESTABLE: Final[str] = "Estable"
+ESTADO_ACEPTABLE: Final[str] = "Aceptable"
+ESTADO_REVISAR: Final[str] = "Revisar"
+ESTADO_CRITICA: Final[str] = "Crítica"
+ESTADO_MANTENIMIENTO: Final[str] = "Mantenimiento"
 
 # ---------------------------------------------------------------------------
 # Excepciones propias de la pareja. Aquí va SemanaNoValida (opción 7).
 # ---------------------------------------------------------------------------
-
+class SemanaNoValida(Exception):
+    """Error lanzado cuando el número de semana no es válido."""
 
 # ---------------------------------------------------------------------------
 # Funciones auxiliares. tasa_caidas viene hecha; el resto, con su docstring,
@@ -60,7 +73,17 @@ def estado(descargas: int, caidas: int) -> str:
     Es uno de estos textos: "Estable", "Aceptable", "Revisar", "Crítica" o
     "Mantenimiento", este último si la semana no tiene descargas.
     """
-    return PENDIENTE                  # provisional
+    try:
+        tasa = tasa_caidas(descargas, caidas)
+    except ZeroDivisionError:
+        return ESTADO_MANTENIMIENTO
+    if tasa < UMBRAL_ESTABLE:
+        return ESTADO_ESTABLE
+    if tasa < UMBRAL_ACEPTABLE:
+        return ESTADO_ACEPTABLE
+    if tasa < UMBRAL_REVISAR:
+        return ESTADO_REVISAR
+    return ESTADO_CRITICA
 
 
 def pedir_entero(mensaje: str, minimo: int, maximo: int) -> int:
@@ -69,7 +92,16 @@ def pedir_entero(mensaje: str, minimo: int, maximo: int) -> int:
     Si se escribe algo que no es un entero o está fuera de rango, avisa y
     lo vuelve a pedir.
     """
-    return minimo                     # provisional
+    while True:
+        entrada = input(mensaje)
+        try:
+            valor = int(entrada)
+        except ValueError:
+            print(f"«{entrada}» no es un número entero.")
+            continue
+        if minimo <= valor <= maximo:
+            return valor
+        print(f"El valor debe estar entre {minimo} y {maximo}.")
 
 
 def pedir_real(mensaje: str, minimo: float, maximo: float) -> float:
@@ -78,8 +110,16 @@ def pedir_real(mensaje: str, minimo: float, maximo: float) -> float:
     Si se escribe algo que no es un número o está fuera de rango, avisa y
     lo vuelve a pedir.
     """
-    return minimo                     # provisional
-
+    while True:
+        entrada = input(mensaje)
+        try:
+            valor = float(entrada)
+        except ValueError:
+            print(f"«{entrada}» no es un número válido.")
+            continue
+        if minimo <= valor <= maximo:
+            return valor
+        print(f"El valor debe estar entre {minimo} y {maximo}.")
 
 def semana_valida(texto: str) -> int:
     """Convierte el texto en un número de semana de los datos.
