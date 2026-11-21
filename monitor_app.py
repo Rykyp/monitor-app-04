@@ -136,7 +136,7 @@ def opcion_2_resumen() -> None:
         total_caidas += caidas
         if descargas > mas:
             mas = descargas
-        semana_mas = semana
+            semana_mas = semana
         if descargas < menos:
             menos = descargas
             semana_menos = semana
