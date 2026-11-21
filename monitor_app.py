@@ -388,37 +388,38 @@ def opcion_7_consulta() -> None:
         print(f"No se puede consultar: {error}")
         return
 
-    descargas = DESCARGAS[semana - 1]
-    caidas = CAIDAS[semana - 1]
-    estado_semana = estado(descargas, caidas)
+    for numero_semana, (descargas, caidas) in enumerate(
+            zip(DESCARGAS, CAIDAS), start=1):
+        if numero_semana != semana:
+            continue
+        estado_semana = estado(descargas, caidas)
+        match estado_semana:
+            case "Estable":
+                accion = "Sin acciones"
+            case "Aceptable":
+                accion = "Vigilar en la próxima versión"
+            case "Revisar":
+                accion = "Revisar los informes de errores"
+            case "Crítica":
+                accion = "Publicar una versión correctora urgente"
+            case "Mantenimiento":
+                accion = "La app no estuvo publicada esa semana"
 
-    try:
-        tasa = f"{tasa_caidas(descargas, caidas):.1f} ‰"
-    except ZeroDivisionError:
-        tasa = "—"
+        print(f"Semana {semana}:")
+        print(f"  Descargas: {descargas}")
+        print(f"  Caídas:    {caidas}")
+        print(f"  Estado:    {estado_semana}")
+        print(f"  Acción:    {accion}")
+        break
 
-    match estado_semana:
-        case "Estable":
-            accion = "Mantener versión actual"
-        case "Aceptable":
-            accion = "Seguir vigilando la evolución"
-        case "Revisar":
-            accion = "Analizar las caídas en la próxima revisión"
-        case "Crítica":
-            accion = "Publicar versión correctora urgente"
-        case "Mantenimiento":
-            accion = "La app no estuvo publicada esa semana"
-
-    print(f"Semana {semana}:")
-    print(f"  Descargas: {descargas}")
-    print(f"  Caídas:    {caidas}")
-    print(f"  Tasa:      {tasa}")
-    print(f"  Estado:    {estado_semana}")
-    print(f"  Acción:    {accion}")
 
 def opcion_8_comprobar() -> None:
-    """[Docstring: qué hace esta opción.]"""
-    print(PENDIENTE)
+    """Comprueba los datos y muestra cuántos errores se han encontrado."""
+    errores = comprobar_datos()
+    if errores == 0:
+        print(f"Datos correctos: {len(DESCARGAS)} semanas")
+    else:
+        print(f"Los datos tienen errores: {errores}")
 
 
 def main() -> None:
