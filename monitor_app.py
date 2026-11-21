@@ -49,6 +49,7 @@ ESTADO_REVISAR: Final[str] = "Revisar"
 ESTADO_CRITICA: Final[str] = "Crítica"
 ESTADO_MANTENIMIENTO: Final[str] = "Mantenimiento"
 
+SEMANA_MINIMA: Final[int] = 1
 
 # ---------------------------------------------------------------------------
 # Excepciones propias de la pareja. Aquí va SemanaNoValida (opción 7).
@@ -129,7 +130,21 @@ def semana_valida(texto: str) -> int:
 
     Lanza SemanaNoValida si no es un entero o está fuera de rango.
     """
-    return 1                          # provisional
+    try:
+        semana = int(texto)
+    except ValueError:
+        raise SemanaNoValida(
+            f"«{texto}» no es un número de semana"
+        ) from None
+
+    ultima_semana = len(DESCARGAS)
+    if not SEMANA_MINIMA <= semana <= ultima_semana:
+        raise SemanaNoValida(
+            f"la semana {semana} no existe: "
+            f"hay de {SEMANA_MINIMA} a {ultima_semana}"
+        )
+
+    return semana
 
 
 def comprobar_datos() -> int:
@@ -138,7 +153,34 @@ def comprobar_datos() -> int:
     Registra cada error con logging.error y cada semana de mantenimiento
     con logging.warning.
     """
-    return 0                          # provisional
+    errores = 0
+
+    if len(DESCARGAS) != len(CAIDAS):
+        logging.error(
+            "las listas de descargas y caídas tienen distinta longitud"
+        )
+        errores += 1
+
+    for semana, (descargas, caidas) in enumerate(
+            zip(DESCARGAS, CAIDAS), start=1):
+        if descargas < 0:
+            logging.error("semana %s: descargas negativas", semana)
+            errores += 1
+
+        if caidas < 0:
+            logging.error("semana %s: caídas negativas", semana)
+            errores += 1
+
+        if caidas > descargas:
+            logging.error("semana %s: más caídas que descargas", semana)
+            errores += 1
+
+        if descargas == 0:
+            logging.warning(
+                "semana %s: sin descargas (mantenimiento)", semana
+            )
+
+    return errores
 
 
 # ---------------------------------------------------------------------------
