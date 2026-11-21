@@ -177,7 +177,7 @@ def opcion_2_resumen() -> None:
         if descargas > mas:
             mas = descargas
             semana_mas = semana
-        if descargas < menos:
+        if activas == 1 or descargas < menos:
             menos = descargas
             semana_menos = semana
     media = total_descargas / activas
