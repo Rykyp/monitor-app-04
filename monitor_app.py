@@ -9,7 +9,7 @@ from typing import Final
 # ---------------------------------------------------------------------------
 # Datos de la aplicación. Sustituid los del ejemplo APP-00 por los vuestros.
 # ---------------------------------------------------------------------------
-CODIGO: Final[str] = "APP-00"
+CODIGO: Final[str] = "APP-04"
 NOMBRE: Final[str] = "Agenda Escolar"
 # Una posición por semana, de la 1 a la 12. 0 descargas: app retirada.
 DESCARGAS: Final = [1_200, 1_350, 1_280, 1_500, 0, 1_720,
@@ -21,7 +21,7 @@ CAIDAS: Final = [14, 12, 15, 9, 0, 22,
 # Datos del programa. Solo hay que cambiar AUTORES.
 # ---------------------------------------------------------------------------
 VERSION_PROGRAMA: Final[str] = "1.0.0"
-AUTORES: Final[str] = "ricardo.palomares.viseras · pablo.morales.viseras"
+AUTORES: Final[str] = "ricardo.palomares.viseras · pablo.morales.gabarron"
 PENDIENTE: Final[str] = "  (opción pendiente de implementar)"
 
 # ---------------------------------------------------------------------------

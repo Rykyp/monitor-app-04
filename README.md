@@ -1,55 +1,90 @@
-# Monitor de estabilidad de la aplicación APP-XX
+# Monitor de estabilidad de APP-04
 
-<!-- Sustituid todo lo que aparece entre corchetes y borrad estos comentarios. -->
-
-Programa de menú que analiza las descargas y las caídas semanales de una aplicación móvil
-publicada: listado, resumen, estabilidad de cada semana, búsqueda por umbral, mejor racha,
-previsión de crecimiento, consulta de una semana y comprobación de los datos.
+Programa de menú que analiza las descargas y las caídas semanales de una aplicación móvil.
 
 **Módulo:** IC44 — Fundamentos de programación en Python
+
 **Unidad:** 2 — Estructuras de control, depuración y excepciones
-**Pareja:** [número]
-**Autores:** [usuario] · [usuario]
 
-## Aplicación analizada
+**Autores:** ricardo.palomares.viseras · pablo.morales.gabarron
 
-| Dato | Valor |
-|---|---|
-| Código | [APP-XX] |
-| Nombre | [nombre] |
-| Semanas | 12 |
+**Equipo asignado:** APP-04
 
-## Ejecución desde Docker Hub
+**Repositorio:** https://github.com/Rykyp/monitor-app-04
 
-No hace falta descargar el repositorio ni tener Python instalado. Solo Docker. El programa
-pide datos por teclado, así que se ejecuta con `-it`.
+## Datos y funcionamiento
 
-```bash
-docker run --rm -it [usuario]/monitor-app-xx:1.0.0
-```
+La aplicación asignada tiene 12 semanas de datos. La tasa de caídas se calcula por cada mil
+descargas (‰). Las semanas sin descargas se consideran de mantenimiento.
 
-Página de la imagen: https://hub.docker.com/r/[usuario]/monitor-app-xx
+El programa ofrece estas opciones:
+
+1. Listado semanal.
+2. Resumen.
+3. Estabilidad por semana.
+4. Primera semana que alcanza un umbral.
+5. Mejor racha sin problemas.
+6. Previsión de crecimiento.
+7. Consultar una semana.
+8. Comprobar los datos.
+9. Salir, con confirmación.
+
+Al arrancar, se comprueban los datos. Los errores impiden continuar y las semanas de
+mantenimiento generan avisos. Ctrl+C permite interrumpir el programa.
 
 ## Ejecución en local
 
-Requiere Python 3.10 o superior.
+Requiere Python 3.10 o superior. Solo utiliza la biblioteca estándar; no necesita instalar
+paquetes externos. Ejecuta los comandos desde la raíz del repositorio.
+
+En Linux o macOS:
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate        # en Windows: .venv\Scripts\activate
+source .venv/bin/activate
 python monitor_app.py
 ```
 
-## Construir la imagen
+En Windows, con PowerShell:
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python monitor_app.py
+```
+
+## Ejecución desde Docker Hub
+
+Repositorio previsto de la imagen: https://hub.docker.com/r/4132853/monitor-app-04
+
+Después de que Ricardo publique la versión, se podrá ejecutar con Docker, sin instalar
+Python ni descargar este repositorio:
 
 ```bash
-docker build -t monitor-app-xx .
-docker run --rm -it monitor-app-xx
+docker run --rm -it --pull always 4132853/monitor-app-04:1.0.0
 ```
+
+`-i` mantiene abierta la entrada para responder a las preguntas y `-t` asigna un terminal.
+`--rm` elimina el contenedor al terminar y `--pull always` comprueba la imagen publicada.
+
+La entrega requiere las arquitecturas `linux/amd64` y `linux/arm64`, las etiquetas `1.0.0`
+y `latest`, y que la imagen `1.0.0` corresponda al código de la etiqueta Git `v1.0.0`.
+La publicación y su comprobación están pendientes.
+
+## Construcción local de la imagen
+
+Desde la raíz del repositorio, con Docker disponible:
+
+```bash
+docker build -t monitor-app-04:1.0.0 .
+docker run --rm -it monitor-app-04:1.0.0
+```
+
+El Dockerfile utiliza Python 3.14 y ejecuta `monitor_app.py`.
 
 ## Estructura del proyecto
 
-```
+```text
 .
 ├── .dockerignore
 ├── .gitignore
@@ -58,3 +93,7 @@ docker run --rm -it monitor-app-xx
 ├── requirements.txt
 └── monitor_app.py
 ```
+
+`.gitignore` excluye el entorno virtual y los archivos generados por Python.
+`.dockerignore` excluye del contexto de construcción Git, el entorno virtual y otros
+archivos innecesarios. `requirements.txt` se conserva aunque no haya dependencias externas.
